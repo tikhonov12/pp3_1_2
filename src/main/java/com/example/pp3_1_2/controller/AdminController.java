@@ -1,0 +1,75 @@
+package com.example.pp3_1_2.controller;
+
+
+import com.example.pp3_1_2.model.User;
+import com.example.pp3_1_2.service.RoleService;
+import com.example.pp3_1_2.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+
+
+@Controller
+@RequestMapping("/admin")
+public class AdminController {
+
+    private UserService userService;
+    private RoleService roleService;
+
+    public AdminController() {
+    }
+
+    @Autowired
+    public AdminController(UserService userService, RoleService roleService) {
+        this.userService = userService;
+        this.roleService = roleService;
+    }
+
+    @GetMapping("/")
+    public String homePage() {
+        return "home";
+    }
+
+    @GetMapping("/home")
+    public String home(Model model, Principal principal) {
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("auth", userService.findByName(principal.getName()));
+        model.addAttribute("userService", userService);
+        model.addAttribute("roleService", roleService);
+        return "home";
+    }
+
+    @PostMapping("/addUser")
+    public String addUser(@ModelAttribute("user") User user,String newRole) {
+        userService.addUser(user,newRole);
+        return "redirect:/admin/home";
+    }
+
+    @GetMapping("/addUser")
+    public String addUser(Model model) {
+        model.addAttribute("user", new User());
+        return "addUser";
+    }
+
+
+    @PostMapping("/save")
+    public String update(@ModelAttribute("user") User user, String role) {
+        userService.updateUser(user,role);
+        return "redirect:/admin/home";
+    }
+
+    @GetMapping("/findOne")
+    @ResponseBody
+    public User findOne(Long id) {
+        return userService.findById(id);
+    }
+
+    @GetMapping("home/linkDelete/{id}")
+    public String delete(@PathVariable Long id) {
+        userService.deleteById(id);
+        return "redirect:/admin/home";
+    }
+}
