@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,20 +40,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user, String role1) {
-
-        Role role =new Role();
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
+        Role role = new Role();
         String DEFAULT_ROLE = "ROLE_USER";
         role.setRoleName(DEFAULT_ROLE);
         if (roleService.findByName(DEFAULT_ROLE).getRoleName() == null) {
             user.getRoleSet().add(roleService.addRole(role));
             return userRepository.save(user);
         }
-        role=roleService.findByName(DEFAULT_ROLE);
+        role = roleService.findByName(DEFAULT_ROLE);
         user.getRoleSet().add(role);
-        if (role1!=null){
+        if (role1 != null) {
             user.getRoleSet().add(roleService.findByName(role1));
         }
-        return  userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
@@ -76,24 +78,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(User user, String roleName) {
-        roleName = roleName.replaceAll( "[^\\w[$^_]]","");
-
-        Role role = roleService.findByName(roleName);
-        User user1 = findById(user.getId());
+    public void updateUser(User user, Long id) {
+        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
+       // roleName = roleName.replaceAll("[^\\w[$^_]]", "");
+//        Role role = roleService.findByName(roleName);
+//        User user1 = findById(user.getId());
+        Role role = roleService.findByName("ROLE_USER");
+        User user1 = findById(id);
         user1.setUsername(user.getUsername());
         user1.setEmail(user.getEmail());
         user1.setPassword(user.getPassword());
-        if (role.getRoleName() == null) {
-            role = new Role();
-            role.setRoleName(roleName);
-            roleService.addRole(role);
-            user1.getRoleSet().add(roleService.findByName(roleName));
-        } else {
+//        if (role.getRoleName() == null) {
+//            role = new Role();
+//            role.setRoleName(roleName);
+//            roleService.addRole(role);
+//            user1.getRoleSet().add(roleService.findByName(roleName));
+//        } else {
             user1.getRoleSet().add(role);
-        }
+//        }
         userRepository.save(user1);
     }
+
     @Override
     public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
         User user = userRepository.findAll().stream().filter(s -> s.getUsername().equals(name)).findFirst().get();

@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
-
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
 
     private UserService userService;
     private RoleService roleService;
@@ -28,11 +28,6 @@ public class AdminController {
         this.roleService = roleService;
     }
 
-    @GetMapping("/")
-    public String homePage() {
-        return "home";
-    }
-
     @GetMapping("/home")
     public String home(Model model, Principal principal) {
         model.addAttribute("users", userService.getAllUsers());
@@ -40,36 +35,5 @@ public class AdminController {
         model.addAttribute("userService", userService);
         model.addAttribute("roleService", roleService);
         return "home";
-    }
-
-    @PostMapping("/addUser")
-    public String addUser(@ModelAttribute("user") User user,String newRole) {
-        userService.addUser(user,newRole);
-        return "redirect:/admin/home";
-    }
-
-    @GetMapping("/addUser")
-    public String addUser(Model model) {
-        model.addAttribute("user", new User());
-        return "addUser";
-    }
-
-
-    @PostMapping("/save")
-    public String update(@ModelAttribute("user") User user, String role) {
-        userService.updateUser(user,role);
-        return "redirect:/admin/home";
-    }
-
-    @GetMapping("/findOne")
-    @ResponseBody
-    public User findOne(Long id) {
-        return userService.findById(id);
-    }
-
-    @GetMapping("home/linkDelete/{id}")
-    public String delete(@PathVariable Long id) {
-        userService.deleteById(id);
-        return "redirect:/admin/home";
     }
 }
