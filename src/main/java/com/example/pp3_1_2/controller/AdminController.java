@@ -1,7 +1,6 @@
 package com.example.pp3_1_2.controller;
 
 
-import com.example.pp3_1_2.model.User;
 import com.example.pp3_1_2.service.RoleService;
 import com.example.pp3_1_2.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
