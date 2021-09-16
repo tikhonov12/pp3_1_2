@@ -195,6 +195,7 @@ async function deleteUser(modal, id) {
     $("#deleteButton").on('click', async () => {
         await userFetchService.deleteUser(id);
         modal.modal('hide')
+        await getTable()
     })
 
 }
@@ -212,6 +213,7 @@ async function addNewUser() {
             password: password
         }
         await userFetchService.addNewUser(data)
+        await getTable()
     })
 }
 
